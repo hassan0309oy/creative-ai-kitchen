@@ -10,33 +10,85 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedMesPlansRouteImport } from './routes/_authenticated/mes-plans'
+import { Route as AuthenticatedQuestionnaireRouteImport } from './routes/_authenticated/questionnaire'
+import { Route as AuthenticatedPlanPlanIdRouteImport } from './routes/_authenticated/plan.$planId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedMesPlansRoute = AuthenticatedMesPlansRouteImport.update({
+  id: '/mes-plans',
+  path: '/mes-plans',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedQuestionnaireRoute =
+  AuthenticatedQuestionnaireRouteImport.update({
+    id: '/questionnaire',
+    path: '/questionnaire',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPlanPlanIdRoute = AuthenticatedPlanPlanIdRouteImport.update({
+  id: '/plan/$planId',
+  path: '/plan/$planId',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/mes-plans': typeof AuthenticatedMesPlansRoute
+  '/questionnaire': typeof AuthenticatedQuestionnaireRoute
+  '/plan/$planId': typeof AuthenticatedPlanPlanIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/mes-plans': typeof AuthenticatedMesPlansRoute
+  '/questionnaire': typeof AuthenticatedQuestionnaireRoute
+  '/plan/$planId': typeof AuthenticatedPlanPlanIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/mes-plans': typeof AuthenticatedMesPlansRoute
+  '/_authenticated/questionnaire': typeof AuthenticatedQuestionnaireRoute
+  '/_authenticated/plan/$planId': typeof AuthenticatedPlanPlanIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/auth' | '/mes-plans' | '/questionnaire' | '/plan/$planId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/auth' | '/mes-plans' | '/questionnaire' | '/plan/$planId'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/mes-plans'
+    | '/_authenticated/questionnaire'
+    | '/_authenticated/plan/$planId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +100,63 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/mes-plans': {
+      id: '/_authenticated/mes-plans'
+      path: '/mes-plans'
+      fullPath: '/mes-plans'
+      preLoaderRoute: typeof AuthenticatedMesPlansRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/questionnaire': {
+      id: '/_authenticated/questionnaire'
+      path: '/questionnaire'
+      fullPath: '/questionnaire'
+      preLoaderRoute: typeof AuthenticatedQuestionnaireRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/plan/$planId': {
+      id: '/_authenticated/plan/$planId'
+      path: '/plan/$planId'
+      fullPath: '/plan/$planId'
+      preLoaderRoute: typeof AuthenticatedPlanPlanIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedMesPlansRoute: typeof AuthenticatedMesPlansRoute
+  AuthenticatedQuestionnaireRoute: typeof AuthenticatedQuestionnaireRoute
+  AuthenticatedPlanPlanIdRoute: typeof AuthenticatedPlanPlanIdRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedMesPlansRoute: AuthenticatedMesPlansRoute,
+  AuthenticatedQuestionnaireRoute: AuthenticatedQuestionnaireRoute,
+  AuthenticatedPlanPlanIdRoute: AuthenticatedPlanPlanIdRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
